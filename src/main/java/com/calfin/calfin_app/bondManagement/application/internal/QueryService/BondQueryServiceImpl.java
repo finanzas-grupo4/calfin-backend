@@ -21,16 +21,16 @@ public class BondQueryServiceImpl implements BondQueryService {
 
     @Override
     public List<Bond> handle(GetAllBondsQuery query) {
-        return List.of();
+        return this.bondRepository.findAll();
     }
 
     @Override
     public List<Bond> handle(GetBondsByUserIdQuery query) {
-        return List.of();
+        return this.bondRepository.findByUserId(query.userId());
     }
 
     @Override
     public Optional<Bond> handle(GetBondByIdQuery query) {
-        return Optional.empty();
+        return this.bondRepository.findById(query.bondId());
     }
 }

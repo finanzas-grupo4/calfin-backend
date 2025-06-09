@@ -1,10 +1,10 @@
-package com.calfin.calfin_app.bondManagement.interfaces.rest.resources;
+package com.calfin.calfin_app.bondManagement.domain.model.commands;
 
 import com.calfin.calfin_app.bondManagement.domain.model.valueObjects.*;
 
 import java.util.Date;
 
-public record CreateBondResource(
+public record UpdateBondCommand(
         String bondName,
         Float nominalValue,
         Currency currency,

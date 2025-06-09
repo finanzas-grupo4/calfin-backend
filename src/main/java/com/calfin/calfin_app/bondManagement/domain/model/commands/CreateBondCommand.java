@@ -20,4 +20,5 @@ public record CreateBondCommand(
         GracePeriodType gracePeriodType,
         Integer gracePeriodLength,
         Float discountRate,
+
         Users user){}

@@ -6,4 +6,5 @@ import com.calfin.calfin_app.bondManagement.domain.model.queries.DeleteBondComma
 public interface BondCommandService {
     Long handle(CreateBondCommand command);
     void handle(DeleteBondCommand command);
+
 }

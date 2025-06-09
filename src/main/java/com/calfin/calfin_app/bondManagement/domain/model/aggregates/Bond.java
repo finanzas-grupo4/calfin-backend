@@ -2,6 +2,7 @@ package com.calfin.calfin_app.bondManagement.domain.model.aggregates;
 
 import com.calfin.calfin_app.IAM.domain.model.aggregates.Users;
 import com.calfin.calfin_app.bondManagement.domain.model.commands.CreateBondCommand;
+import com.calfin.calfin_app.bondManagement.domain.model.commands.UpdateBondCommand;
 import com.calfin.calfin_app.bondManagement.domain.model.valueObjects.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -77,6 +78,23 @@ public class Bond {
         this.discountRate = command.discountRate();
 
         this.user = command.user();
+    }
+
+    public void updateBond(UpdateBondCommand command) {
+        this.bondName = command.bondName();
+        this.nominalValue = command.nominalValue();
+        this.currency = command.currency();
+        this.term = command.term();
+        this.termUnit = command.termUnit();
+        this.interestRate = command.interestRate();
+        this.isEffectiveRate = command.isEffectiveRate();
+        this.paymentFrequency = command.paymentFrequency();
+        this.compoundingFrequency = command.compoundingFrequency();
+        this.issueDate = command.issueDate();
+        this.hasGracePeriod = command.hasGracePeriod();
+        this.gracePeriodType = command.gracePeriodType();
+        this.gracePeriodLength = command.gracePeriodLength();
+        this.discountRate = command.discountRate();
     }
 
 }
