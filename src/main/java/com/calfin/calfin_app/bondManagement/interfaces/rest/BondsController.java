@@ -10,8 +10,10 @@ import com.calfin.calfin_app.bondManagement.domain.services.BondQueryService;
 import com.calfin.calfin_app.bondManagement.infrastructure.persistence.jpa.repositories.BondRepository;
 import com.calfin.calfin_app.bondManagement.interfaces.rest.resources.BondResource;
 import com.calfin.calfin_app.bondManagement.interfaces.rest.resources.CreateBondResource;
+import com.calfin.calfin_app.bondManagement.interfaces.rest.resources.UpdateBondResource;
 import com.calfin.calfin_app.bondManagement.interfaces.rest.transform.BondResourceFromEntityAssembler;
 import com.calfin.calfin_app.bondManagement.interfaces.rest.transform.CreateBondCommandFromResourceAssembler;
+import com.calfin.calfin_app.bondManagement.interfaces.rest.transform.UpdateBondCommandFromResourceAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -108,6 +110,20 @@ public class BondsController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @PutMapping("/bonds/{bondId}")
+    public ResponseEntity<BondResource> updateBond(@PathVariable Long bondId, @RequestBody UpdateBondResource resource){
+        var getBondByIdQuery = new GetBondByIdQuery(bondId);
+        var optionalBond = this.bondQueryService.handle(getBondByIdQuery);
+        if (optionalBond.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var updateBondCommand = UpdateBondCommandFromResourceAssembler.toCommandFromResource(bondId, resource);
+        var updatedBond = this.bondCommandService.handle(updateBondCommand);
+        if (updatedBond.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        var bondResource = BondResourceFromEntityAssembler.toResourceFromEntity(updatedBond.get());
+        return ResponseEntity.ok(bondResource);
+    }
 
 }
