@@ -2,6 +2,7 @@ package com.calfin.calfin_app.bondManagement.interfaces.rest.resources;
 
 import com.calfin.calfin_app.bondManagement.domain.model.valueObjects.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public record UpdateBondResource(
@@ -14,7 +15,7 @@ public record UpdateBondResource(
         boolean isEffectiveRate,
         PaymentFrequency paymentFrequency,
         CompoundingFrequency compoundingFrequency,
-        Date issueDate,
+        LocalDate issueDate,
         boolean hasGracePeriod,
         GracePeriodType gracePeriodType,
         Integer gracePeriodLength,

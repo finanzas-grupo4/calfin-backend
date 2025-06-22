@@ -1,12 +1,12 @@
 package com.calfin.calfin_app.bondManagement.interfaces.rest;
 
 import com.calfin.calfin_app.bondManagement.application.internal.outboundServices.ExternaluserService;
-import com.calfin.calfin_app.bondManagement.domain.model.queries.DeleteBondCommand;
-import com.calfin.calfin_app.bondManagement.domain.model.queries.GetAllBondsQuery;
-import com.calfin.calfin_app.bondManagement.domain.model.queries.GetBondByIdQuery;
-import com.calfin.calfin_app.bondManagement.domain.model.queries.GetBondsByUserIdQuery;
+import com.calfin.calfin_app.bondManagement.domain.model.aggregates.CashFlows;
+import com.calfin.calfin_app.bondManagement.domain.model.queries.*;
 import com.calfin.calfin_app.bondManagement.domain.services.BondCommandService;
 import com.calfin.calfin_app.bondManagement.domain.services.BondQueryService;
+import com.calfin.calfin_app.bondManagement.domain.services.CashFlowsCommandService;
+import com.calfin.calfin_app.bondManagement.domain.services.CashFlowsQueryService;
 import com.calfin.calfin_app.bondManagement.infrastructure.persistence.jpa.repositories.BondRepository;
 import com.calfin.calfin_app.bondManagement.interfaces.rest.resources.BondResource;
 import com.calfin.calfin_app.bondManagement.interfaces.rest.resources.CreateBondResource;
@@ -30,10 +30,16 @@ public class BondsController {
     private final BondCommandService bondCommandService;
     private final ExternaluserService externaluserService;
 
-    public BondsController(BondQueryService bondQueryService, BondCommandService bondCommandService, ExternaluserService externaluserService) {
+    //cash flow
+    private final CashFlowsCommandService cashFlowsCommandService;
+    private final CashFlowsQueryService cashFlowsQueryService;
+
+    public BondsController(BondQueryService bondQueryService, BondCommandService bondCommandService, ExternaluserService externaluserService, CashFlowsCommandService cashFlowsCommandService, CashFlowsQueryService cashFlowsQueryService) {
         this.bondQueryService = bondQueryService;
         this.bondCommandService = bondCommandService;
         this.externaluserService = externaluserService;
+        this.cashFlowsCommandService = cashFlowsCommandService;
+        this.cashFlowsQueryService = cashFlowsQueryService;
     }
 
     @PostMapping("/users/{userId}/bonds")
@@ -55,6 +61,16 @@ public class BondsController {
         if (bond.isEmpty()) {
             throw new RuntimeException("Bond not found with id: " + bondId);
         }
+
+        /*
+        var cashFlowsByBondId = new GetCashFlowsByBondId(bond.get().getId());
+        var optionalCashFlows = this.cashFlowsQueryService.handle(cashFlowsByBondId);
+        var DeleteleCashFlows = new DeleteCashFlowsCommand(optionalCashFlows.get().getId());
+        this.cashFlowsCommandService.handle(DeleteleCashFlows);
+        */
+        this.cashFlowsCommandService.handle(bond.get());
+
+
         var bondResource = BondResourceFromEntityAssembler.toResourceFromEntity(bond.get());
 
         return new ResponseEntity<>(bondResource, HttpStatus.CREATED);
@@ -122,8 +138,25 @@ public class BondsController {
         if (updatedBond.isEmpty()) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+
+        var cashFlowsByBondIdQuery = new GetCashFlowsByBondId(updatedBond.get().getId());
+        var optionalCashFlows = this.cashFlowsQueryService.handle(cashFlowsByBondIdQuery);
+        var DeleteleCashFlows = new DeleteCashFlowsCommand(optionalCashFlows.get().getId());
+        this.cashFlowsCommandService.handle(DeleteleCashFlows);
+        this.cashFlowsCommandService.handle(updatedBond.get());
+
         var bondResource = BondResourceFromEntityAssembler.toResourceFromEntity(updatedBond.get());
         return ResponseEntity.ok(bondResource);
     }
 
+    // CASH FLOWS --------------------------------------------------------------------------------------------------------
+    @GetMapping("/bonds/{bondId}/cashflows")
+    public ResponseEntity<CashFlows> getBondCashFlow(@PathVariable Long bondId){
+        var getCashFlowsByBondId = new GetCashFlowsByBondId(bondId);
+        var optionalCashFlows = this.cashFlowsQueryService.handle(getCashFlowsByBondId);
+        if (optionalCashFlows.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(optionalCashFlows.get());
+    }
 }

@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -44,7 +45,7 @@ public class Bond {
     private CompoundingFrequency compoundingFrequency; //frecuencia de capitalización
 
     //fechas y periodos de gracia
-    private Date issueDate; //fecha de emisión
+    private LocalDate issueDate; //fecha de emisión
 
     private boolean hasGracePeriod;
 
@@ -58,6 +59,9 @@ public class Bond {
 
     @ManyToOne
     private Users user;
+
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
+    private CashFlows cashFlows;
 
     //----------------
 
