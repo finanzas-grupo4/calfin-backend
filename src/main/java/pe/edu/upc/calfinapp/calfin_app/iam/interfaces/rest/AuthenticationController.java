@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pe.edu.upc.calfinapp.calfin_app.profiles.domain.model.commands.CreateProfileCommand;
+import pe.edu.upc.calfinapp.calfin_app.profiles.domain.model.valueobjects.UserId;
+import pe.edu.upc.calfinapp.calfin_app.profiles.domain.services.ProfileCommandService;
 
 /**
  * AuthenticationController
@@ -35,9 +38,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
   private final UserCommandService userCommandService;
+  private final ProfileCommandService profileCommandService;
 
-  public AuthenticationController(UserCommandService userCommandService) {
+  public AuthenticationController(UserCommandService userCommandService, ProfileCommandService profileCommandService) {
     this.userCommandService = userCommandService;
+    this.profileCommandService = profileCommandService;
   }
 
   /**
@@ -75,6 +80,15 @@ public class AuthenticationController {
     if (user.isEmpty()) {
       return ResponseEntity.badRequest().build();
     }
+
+    var createdUser = user.get();
+    var profileCommand = new CreateProfileCommand(
+            createdUser.getUsername(),
+            createdUser.getPassword(),
+            new UserId(createdUser.getId())
+    );
+    profileCommandService.handle(profileCommand);
+
     var userResource = UserResourceFromEntityAssembler.toResourceFromEntity(user.get());
     return new ResponseEntity<>(userResource, HttpStatus.CREATED);
   }
